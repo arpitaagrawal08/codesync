@@ -5,10 +5,7 @@ export default defineSchema({
         userId: v.string(), // clerkId
     email: v.string(),
     name: v.string(),
-    isPro: v.boolean(),
-    proSince: v.optional(v.number()),
-    lemonSqueezyCustomerId: v.optional(v.string()),
-    lemonSqueezyOrderId: v.optional(v.string()),
+  
     }).index("by_user_id", ["userId"]),
 
     codeExecutions: defineTable({
