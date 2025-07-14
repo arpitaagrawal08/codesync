@@ -1,66 +1,74 @@
-"use client"
-import { useCodeEditorStore } from "@/store/useCodeEditorStore"
-import { useEffect, useState } from "react"
+"use client";
+
+import { useCodeEditorStore } from "@/store/useCodeEditorStore";
+import { useEffect, useState } from "react";
 import { defineMonacoThemes, LANGUAGE_CONFIG } from "../_constants";
 import { Editor } from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import useMounted from "@/hooks/useMounted";
-import  {EditorPanelSkeleton}  from "./EditorPanelSkeleton";
+import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
 import ShareSnippetDialog from "./ShareSnippetDialog";
 
 const EditorPanel = () => {
-  const clerk=useClerk();
-  const [isShareDialogOpen,setIsShareDialogOpen]=useState(false);
-  const {language,theme,fontSize,editor,setFontSize,setEditor}=useCodeEditorStore();
-  const mounted=useMounted()
+  const clerk = useClerk();
+  const { user, isLoaded: userLoaded } = useUser();
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const { language, theme, fontSize, editor, setFontSize, setEditor } = useCodeEditorStore();
+  const mounted = useMounted();
 
+  // Load saved code or fallback to default
+  useEffect(() => {
+    const savedCode = localStorage.getItem(`editor-code-${language}`);
+    const newCode = savedCode || LANGUAGE_CONFIG[language].defaultCode;
+    if (editor) editor.setValue(newCode);
+  }, [language, editor]);
 
-  useEffect(()=>{
-    const savedCode=localStorage.getItem(`editor-code-${language}`)
-    const newcode=savedCode|| LANGUAGE_CONFIG[language].defaultCode
-    if(editor) editor.setValue(newcode);
-  },[language,editor]);
-
-    useEffect(() => {
+  // Load saved font size
+  useEffect(() => {
     const savedFontSize = localStorage.getItem("editor-font-size");
     if (savedFontSize) setFontSize(parseInt(savedFontSize));
   }, [setFontSize]);
 
-  const handleRefresh=()=>{
-    const defaultCode=LANGUAGE_CONFIG[language].defaultCode;
-    if(editor) editor.setValue(defaultCode);
-    localStorage.removeItem(`editor-code-${language}`)
+  // Reset to default code
+  const handleRefresh = () => {
+    const defaultCode = LANGUAGE_CONFIG[language].defaultCode;
+    if (editor) editor.setValue(defaultCode);
+    localStorage.removeItem(`editor-code-${language}`);
   };
 
-   const handleEditorChange = (value: string | undefined) => {
+  // Save code on change
+  const handleEditorChange = (value: string | undefined) => {
     if (value) localStorage.setItem(`editor-code-${language}`, value);
   };
 
+  // Font size handler with limit
   const handleFontSizeChange = (newSize: number) => {
     const size = Math.min(Math.max(newSize, 12), 24);
     setFontSize(size);
     localStorage.setItem("editor-font-size", size.toString());
   };
 
+  if (!mounted) return null;
+  if (!userLoaded || !user) return <EditorPanelSkeleton />;
 
-  if(!mounted)return null;
   return (
-     <div className="relative">
+    <div className="relative">
       <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl border border-white/[0.05] p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#1e1e2e] ring-1 ring-white/5">
-              <Image src={"/" + language + ".png"} alt="Logo" width={24} height={24} />
+              <Image src={`/${language}.png`} alt="Logo" width={24} height={24} />
             </div>
             <div>
               <h2 className="text-sm font-medium text-white">Code Editor</h2>
               <p className="text-xs text-gray-500">Write and execute your code</p>
             </div>
           </div>
+
           <div className="flex items-center gap-3">
             {/* Font Size Slider */}
             <div className="flex items-center gap-3 px-3 py-2 bg-[#1e1e2e] rounded-lg ring-1 ring-white/5">
@@ -80,6 +88,7 @@ const EditorPanel = () => {
               </div>
             </div>
 
+            {/* Reset */}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -90,23 +99,22 @@ const EditorPanel = () => {
               <RotateCcwIcon className="size-4 text-gray-400" />
             </motion.button>
 
-            {/* Share Button */}
+            {/* Share */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsShareDialogOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-gradient-to-r
-               from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
             >
               <ShareIcon className="size-4 text-white" />
-              <span className="text-sm font-medium text-white ">Share</span>
+              <span className="text-sm font-medium text-white">Share</span>
             </motion.button>
           </div>
         </div>
 
-        {/* Editor  */}
+        {/* Code Editor */}
         <div className="relative group rounded-xl overflow-hidden ring-1 ring-white/[0.05]">
-          {clerk.loaded && (
+          {clerk.loaded ? (
             <Editor
               height="600px"
               language={LANGUAGE_CONFIG[language].monacoLanguage}
@@ -136,14 +144,16 @@ const EditorPanel = () => {
                 },
               }}
             />
+          ) : (
+            <EditorPanelSkeleton />
           )}
-
-          {!clerk.loaded && <EditorPanelSkeleton />}
         </div>
       </div>
+
+      {/* Share Dialog */}
       {isShareDialogOpen && <ShareSnippetDialog onClose={() => setIsShareDialogOpen(false)} />}
     </div>
-  )
-}
+  );
+};
 
-export default EditorPanel
+export default EditorPanel;
