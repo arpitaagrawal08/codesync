@@ -7,7 +7,7 @@ import RunningCodeSkeleton from "./RunningCodeSkeleton";
 const OutputPanel = () => {
   const { output,error,isRunning}=useCodeEditorStore();
   const [isCopied,setisCopied]=useState(false);
-  const hasContent=error||output;
+  const hasContent=error||output;                                                                                                                 
 
   const handleCopy=async()=>{
     if(!hasContent)return;

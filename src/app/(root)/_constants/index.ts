@@ -18,7 +18,7 @@ export const LANGUAGE_CONFIG: LanguageConfig = {
     id: "javascript",
     label: "JavaScript",
     logoPath: "/javascript.png",
-    pistonRuntime: { language: "javascript", version: "18.15.0" }, // api that we're gonna be using
+    pistonRuntime: { language: "javascript", version: "1.32.3" }, // api that we're gonna be using
     monacoLanguage: "javascript",
     defaultCode: `// JavaScript Playground
 const numbers = [1, 2, 3, 4, 5];
@@ -40,7 +40,7 @@ console.log('Sum of numbers:', sum);`,
     id: "typescript",
     label: "TypeScript",
     logoPath: "/typescript.png",
-    pistonRuntime: { language: "typescript", version: "5.0.3" },
+    pistonRuntime: { language: "typescript", version: "1.32.3" },
     monacoLanguage: "typescript",
     defaultCode: `// TypeScript Playground
 interface NumberArray {
