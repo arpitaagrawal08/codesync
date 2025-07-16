@@ -157,5 +157,6 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
     },
   };
 });
+//this will give the latest execution result value!
 
 export const getExecutionResult = () => useCodeEditorStore.getState().executionResult;
