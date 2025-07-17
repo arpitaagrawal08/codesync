@@ -32,6 +32,70 @@ export const createSnippet=mutation({
   },
 });
 
+export const deleteSnippet=mutation({
+  args:{
+    snippetId: v.id("snippets"),
+  },
+  handler: async(ctx,args)=>{
+    const identity=await ctx.auth.getUserIdentity();
+    if(!identity) throw new Error("Unauthorized");
+
+    const snippet= await ctx.db.get(args.snippetId);
+    if(!snippet) throw new Error("No snippet found");
+    if(snippet.userId!==identity.subject){
+      throw new Error("Not authorised to delete this snippet");
+    }
+    //deleting the snippet,its comments& all the star it has
+    const comments= await ctx.db.query("snippetComments")
+    .withIndex("by_snippet_id")
+    .filter((q)=>q.eq(q.field("snippetId"),args.snippetId))
+    .collect();
+
+    for(const cm of comments){
+      await ctx.db.delete(cm._id);
+    }
+
+     const stars= await ctx.db.query("stars")
+    .withIndex("by_snippet_id")
+    .filter((q)=>q.eq(q.field("snippetId"),args.snippetId))
+    .collect();
+
+    for(const st of stars){
+      await ctx.db.delete(st._id);
+    }
+
+    //finally delete the snip
+    await ctx.db.delete(args.snippetId);
+  }
+});
+
+export const starSnippet=mutation({
+  args:{
+    snippetId: v.id("snippets"),
+  },
+  handler: async(ctx,args)=>{
+    const identity=await ctx.auth.getUserIdentity();
+    if(!identity) throw new Error("Unauthorized");
+
+    const existing=await ctx.db.query("stars")
+    .withIndex("by_user_id_and_snippet_id")
+    .filter((q)=>q.eq(q.field("userId"),identity.subject)&& q.eq(q.field("snippetId"),args.snippetId))
+    .first();
+
+    if(existing){
+      await ctx.db.delete(existing._id);
+    }else{
+      await ctx.db.insert(
+        "stars",{
+          userId:identity.subject,
+          snippetId:args.snippetId,
+        }
+      );
+    }
+  }
+});
+
+
 export const getSnippets=query({
   handler: async(ctx)=>{
     const snippets=await ctx.db.query("snippets").order("desc").collect();
