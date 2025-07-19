@@ -7,6 +7,7 @@ import NavigationHeader from '@/components/NavigationHeader'
 import { BookOpen, Code, Grid, Layers, Search, Tag, X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import SnippetCard from "./_components/SnippetCard";
+import Image from 'next/image'
 
 const SnippetsPage = () => {
     const snippets=useQuery(api.snippets.getSnippets)
@@ -111,7 +112,7 @@ const SnippetsPage = () => {
                   `}
               >
                 <div className="flex items-center gap-2">
-                  <img src={`/${lang}.png`} alt={lang} className="w-4 h-4 object-contain" />
+                  <Image src={`/${lang}.png`} alt={lang} width={16} height={16} />
                   <span className="text-sm">{lang}</span>
                 </div>
               </button>
