@@ -1,21 +1,18 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { ConvexHttpClient } from "convex/browser";
-import React from "react";
-import { api } from "../../../../convex/_generated/api";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Blocks, Code2, UserCircle2 } from "lucide-react";
+import { Blocks, Code2, UserCircle2, Users } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import RunButton from "./RunButton";
 import HeaderProfileBtn from "./HeaderProfileBtn";
+import SocketJoinRoomDialog from "@/components/collaboration/SocketJoinRoomDialog";
+import SocketCollaborationStatus from "@/components/collaboration/SocketCollaborationStatus";
+import SocketLeaveRoomButton from "@/components/collaboration/SocketLeaveRoomButton";
 
-async function Header() {
-  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-  const user = await currentUser();
-  await convex.query(api.users.getUser, {
-    userId: user?.id || "",
-  });
+function Header() {
+  const [isJoinRoomOpen, setIsJoinRoomOpen] = useState(false);
+
 
   return (
     <div className="relative z-10">
@@ -75,11 +72,25 @@ async function Header() {
                 Profile
               </span>
             </Link>
+
+            <button
+              onClick={() => setIsJoinRoomOpen(true)}
+              className="relative group flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-300 bg-gray-800/50 
+                hover:bg-blue-500/10 border border-gray-800 hover:border-blue-500/50 transition-all duration-300 shadow-lg overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Users className="w-4 h-4 relative z-10 group-hover:rotate-3 transition-transform" />
+              <span className="text-sm font-medium relative z-10 group-hover:text-white hidden sm:inline">
+                Join Room
+              </span>
+            </button>
           </nav>
         </div>
 
         {/* RIGHT SECTION */}
         <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+          <SocketCollaborationStatus />
+          <SocketLeaveRoomButton />
           <ThemeSelector />
           <LanguageSelector />
 
@@ -99,6 +110,11 @@ async function Header() {
           </SignedOut>
         </div>
       </div>
+
+      <SocketJoinRoomDialog 
+        isOpen={isJoinRoomOpen} 
+        onClose={() => setIsJoinRoomOpen(false)} 
+      />
     </div>
   );
 }
