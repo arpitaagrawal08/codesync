@@ -13,22 +13,8 @@ export interface Language {
   logoPath: string;
   monacoLanguage: string;
   defaultCode: string;
-  pistonRuntime: LanguageRuntime;
-}
-
-export interface LanguageRuntime {
-  language: string;
-  version: string;
-}
-
-export interface ExecuteCodeResponse {
-  compile?: {
-    output: string;
-  };
-  run?: {
-    output: string;
-    stderr: string;
-  };
+  jdoodleLanguage: string;
+  jdoodleVersionIndex: string;
 }
 
 export interface ExecutionResult {

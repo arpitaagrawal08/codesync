@@ -6,7 +6,8 @@ type LanguageConfig = Record<
     id: string;
     label: string;
     logoPath: string;
-    pistonRuntime: { language: string; version: string };
+    jdoodleLanguage: string;
+    jdoodleVersionIndex: string;
     monacoLanguage: string;
     defaultCode: string;
   }
@@ -17,7 +18,8 @@ export const LANGUAGE_CONFIG: LanguageConfig = {
     id: "javascript",
     label: "JavaScript",
     logoPath: "/javascript.png",
-    pistonRuntime: { language: "javascript", version: "1.32.3" }, // api that we're gonna be using
+    jdoodleLanguage: "nodejs",
+    jdoodleVersionIndex: "5",
     monacoLanguage: "javascript",
     defaultCode: `// JavaScript Playground
 const numbers = [1, 2, 3, 4, 5];
@@ -39,7 +41,8 @@ console.log('Sum of numbers:', sum);`,
     id: "typescript",
     label: "TypeScript",
     logoPath: "/typescript.png",
-    pistonRuntime: { language: "typescript", version: "1.32.3" },
+    jdoodleLanguage: "typescript",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "typescript",
     defaultCode: `// TypeScript Playground
 interface NumberArray {
@@ -76,7 +79,8 @@ console.log('Sum of numbers:', math.sum());`,
     id: "python",
     label: "Python",
     logoPath: "/python.png",
-    pistonRuntime: { language: "python", version: "3.10.0" },
+    jdoodleLanguage: "python3",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "python",
     defaultCode: `# Python Playground
 numbers = [1, 2, 3, 4, 5]
@@ -98,7 +102,8 @@ print(f"Sum of numbers: {numbers_sum}")`,
     id: "java",
     label: "Java",
     logoPath: "/java.png",
-    pistonRuntime: { language: "java", version: "15.0.2" },
+    jdoodleLanguage: "java",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "java",
     defaultCode: `public class Main {
   public static void main(String[] args) {
@@ -140,7 +145,8 @@ print(f"Sum of numbers: {numbers_sum}")`,
     id: "go",
     label: "Go",
     logoPath: "/go.png",
-    pistonRuntime: { language: "go", version: "1.16.2" },
+    jdoodleLanguage: "go",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "go",
     defaultCode: `package main
 
@@ -181,7 +187,8 @@ func main() {
     id: "rust",
     label: "Rust",
     logoPath: "/rust.png",
-    pistonRuntime: { language: "rust", version: "1.68.2" },
+    jdoodleLanguage: "rust",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "rust",
     defaultCode: `fn main() {
     // Create vector
@@ -214,7 +221,8 @@ func main() {
     id: "cpp",
     label: "C++",
     logoPath: "/cpp.png",
-    pistonRuntime: { language: "cpp", version: "10.2.0" },
+    jdoodleLanguage: "cpp17",
+    jdoodleVersionIndex: "1",
     monacoLanguage: "cpp",
     defaultCode: `#include <iostream>
 #include <vector>
@@ -258,7 +266,8 @@ int main() {
     id: "csharp",
     label: "C#",
     logoPath: "/csharp.png",
-    pistonRuntime: { language: "csharp", version: "6.12.0" },
+    jdoodleLanguage: "csharp",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "csharp",
     defaultCode: `using System;
 using System.Linq;
@@ -289,7 +298,8 @@ class Program {
     id: "ruby",
     label: "Ruby",
     logoPath: "/ruby.png",
-    pistonRuntime: { language: "ruby", version: "3.0.1" },
+    jdoodleLanguage: "ruby",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "ruby",
     defaultCode: `# Create array
 numbers = [1, 2, 3, 4, 5]
@@ -313,7 +323,8 @@ puts "Sum of numbers: #{sum}"`,
     id: "swift",
     label: "Swift",
     logoPath: "/swift.png",
-    pistonRuntime: { language: "swift", version: "5.3.3" },
+    jdoodleLanguage: "swift",
+    jdoodleVersionIndex: "4",
     monacoLanguage: "swift",
     defaultCode: `// Create array
 let numbers = [1, 2, 3, 4, 5]
