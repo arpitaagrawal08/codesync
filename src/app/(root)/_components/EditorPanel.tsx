@@ -51,11 +51,7 @@ const EditorPanel = () => {
     }
   };
 
-  // Handle language change with collaboration
-  const handleLanguageChange = (newLanguage: string) => {
-    useCodeEditorStore.getState().setLanguage(newLanguage);
-    sendLanguageChange(newLanguage);
-  };
+
 
   // Font size handler with limit
   const handleFontSizeChange = (newSize: number) => {

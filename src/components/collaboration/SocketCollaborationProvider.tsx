@@ -68,7 +68,7 @@ export const SocketCollaborationProvider = ({ children }: SocketCollaborationPro
     socket.on('user-left', ({ userName, users }) => {
       console.log('User left:', userName);
       setUsers(users);
-      toast.info(`${userName} left the room`);
+      toast(`${userName} left the room`, { icon: 'ℹ️' });
     });
 
     // Code synchronization
@@ -88,7 +88,7 @@ export const SocketCollaborationProvider = ({ children }: SocketCollaborationPro
       console.log('Language update to:', language, 'from:', userId);
       if (userId !== socket.id) {
         setLanguage(language);
-        toast.info(`Language changed to ${language}`);
+        toast(`Language changed to ${language}`, { icon: 'ℹ️' });
       }
     });
 
