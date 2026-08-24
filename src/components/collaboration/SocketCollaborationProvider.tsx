@@ -42,8 +42,10 @@ export const SocketCollaborationProvider = ({ children }: SocketCollaborationPro
 
     // room-state: sent once when user successfully joins
     socket.on('room-state', ({ code, language, messages, users, roomId: incomingRoomId }) => {
-      // Use setRemoteCode instead of editor.setValue() to avoid triggering onChange echo
-      if (code) setRemoteCode(code);
+      // Always call setRemoteCode so the editor resets for new (empty) rooms too.
+      // 'code' can be '' for a brand-new room — '' is falsy, so `if (code)` would silently skip
+      // it and each user would keep their stale localStorage code instead of the room's clean slate.
+      setRemoteCode(code ?? '');
       setLanguage(language);
       setMessages(messages);
       setUsers(users);

@@ -139,6 +139,7 @@ export const useSocketCollaborationStore = create<SocketCollaborationState>((set
       messages: [],
       cursors: {},
       isInRoom: false,
+      remoteCode: null, // clear so previous room's code can't bleed into the next room
     });
   },
 
