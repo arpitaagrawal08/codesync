@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { SocketCollaborationProvider } from "@/components/collaboration/SocketCollaborationProvider";
 import { useSocketCollaborationStore } from "@/store/useSocketCollaborationStore";
 import { useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion";
@@ -207,14 +206,12 @@ function RoomContent({ roomId }: { roomId: string }) {
   );
 }
 
-// ─── Page wrapper — provides the socket + store context ──────────────────────
+// ─── Page wrapper ────────────────────────────────────────────────────────────
+// NOTE: SocketCollaborationProvider is already mounted in root layout.tsx.
+// Do NOT add it here again — it would create a second socket connection.
 export default function RoomPage() {
   const params = useParams();
   const roomId = Array.isArray(params.roomId) ? params.roomId[0] : params.roomId as string;
 
-  return (
-    <SocketCollaborationProvider>
-      <RoomContent roomId={roomId} />
-    </SocketCollaborationProvider>
-  );
+  return <RoomContent roomId={roomId} />;
 }
