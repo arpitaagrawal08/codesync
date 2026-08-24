@@ -6,7 +6,8 @@ export const useSocket = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const nextSocket = io('http://localhost:3001', {
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
+    const nextSocket = io(socketUrl, {
       transports: ['polling', 'websocket'],
     });
 

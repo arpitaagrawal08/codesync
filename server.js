@@ -7,15 +7,17 @@ const app = express();
 const server = http.createServer(app);
 
 // Configure CORS for Socket.IO
+// origin: true mirrors the request's Origin header back, allowing any domain.
+// This is needed for production deployments where the frontend URL isn't localhost.
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: true,
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 // Store room data
