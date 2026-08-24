@@ -68,7 +68,7 @@ interface SocketCollaborationState {
   removeCursor: (userId: string) => void;
 
   // Socket actions
-  joinRoom: (roomId: string, userName: string) => void;
+  joinRoom: (roomId: string, userName: string, initialLanguage?: string) => void;
   leaveRoom: () => void;
   sendCodeChange: (code: string) => void;
   sendLanguageChange: (language: string) => void;
@@ -119,11 +119,11 @@ export const useSocketCollaborationStore = create<SocketCollaborationState>((set
       return { cursors: next };
     }),
 
-  joinRoom: (roomId, userName) => {
+  joinRoom: (roomId, userName, initialLanguage) => {
     const { socket } = get();
     if (socket) {
       set({ isJoining: true, roomId }); // optimistically set roomId
-      socket.emit('join-room', { roomId, userName });
+      socket.emit('join-room', { roomId, userName, initialLanguage });
     }
   },
 

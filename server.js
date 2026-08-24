@@ -38,14 +38,19 @@ io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   // Handle joining a room
-  socket.on('join-room', ({ roomId, userName }) => {
+  socket.on('join-room', ({ roomId, userName, initialLanguage }) => {
     console.log(`User ${userName} joining room ${roomId}`);
     
     socket.join(roomId);
     socket.roomId = roomId;
     socket.userName = userName;
 
+    // If room doesn't exist yet, create it with the creator's chosen language
+    const isNewRoom = !rooms.has(roomId);
     const room = getRoom(roomId);
+    if (isNewRoom && initialLanguage) {
+      room.language = initialLanguage;
+    }
     room.users.set(socket.id, {
       id: socket.id,
       name: userName,
