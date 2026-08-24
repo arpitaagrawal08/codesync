@@ -3,6 +3,18 @@ import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import { create } from "zustand";
 import type { editor as MonacoEditor } from "monaco-editor";
 
+// Lazy getter to avoid circular import at module-load time.
+// Called only at runtime (inside setEditor), by which point both stores are initialised.
+let _getCollabState: (() => { isInRoom: boolean }) | null = null;
+function getCollabState() {
+  if (!_getCollabState) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    _getCollabState = () =>
+      require('@/store/useSocketCollaborationStore').useSocketCollaborationStore.getState();
+  }
+  return _getCollabState();
+}
+
 const getInitialState = () => {
   // if we're on the server, return default values
   if (typeof window === "undefined") {
@@ -39,8 +51,13 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
     getCode: () => get().editor?.getValue() || "",
 
     setEditor: (editor: MonacoEditor.IStandaloneCodeEditor) => {
-      const savedCode = localStorage.getItem(`editor-code-${get().language}`);
-      if (savedCode) editor.setValue(savedCode);
+      // Do NOT restore localStorage code when inside a collaboration room —
+      // the room-state code from the server must win.
+      const { isInRoom } = getCollabState();
+      if (!isInRoom) {
+        const savedCode = localStorage.getItem(`editor-code-${get().language}`);
+        if (savedCode) editor.setValue(savedCode);
+      }
 
       set({ editor });
     },
