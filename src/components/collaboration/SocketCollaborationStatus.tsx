@@ -5,9 +5,9 @@ import { Users, Wifi } from "lucide-react";
 import { motion } from "framer-motion";
 
 const SocketCollaborationStatus = () => {
-  const { isConnected, roomId, users } = useSocketCollaborationStore();
+  const { isInRoom, roomId, users } = useSocketCollaborationStore();
 
-  if (!isConnected || !roomId) return null;
+  if (!isInRoom || !roomId) return null;
 
   return (
     <motion.div

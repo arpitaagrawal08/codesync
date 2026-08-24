@@ -4,16 +4,21 @@ import { useSocketCollaborationStore } from "@/store/useSocketCollaborationStore
 import { LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+
 
 const SocketLeaveRoomButton = () => {
-  const { isConnected, leaveRoom, roomId } = useSocketCollaborationStore();
+  const { isInRoom, leaveRoom, roomId } = useSocketCollaborationStore();
+  const router = useRouter();
 
   const handleLeaveRoom = () => {
+    const leftRoom = roomId;
     leaveRoom();
-    toast.success(`Left room: ${roomId}`);
+    toast.success(`Left room: ${leftRoom}`);
+    router.push('/');
   };
 
-  if (!isConnected) return null;
+  if (!isInRoom) return null;
 
   return (
     <motion.button

@@ -52,8 +52,9 @@ io.on('connection', (socket) => {
       joinedAt: Date.now()
     });
 
-    // Send current room state to the new user
+    // Send current room state to the new user (include roomId so client can confirm)
     socket.emit('room-state', {
+      roomId,
       code: room.code,
       language: room.language,
       messages: room.messages,

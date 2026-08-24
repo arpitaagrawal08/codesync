@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useSocket } from '@/hooks/useSocket';
-import { useSocketCollaborationStore } from '@/store/useSocketCollaborationStore';
+import { useSocketCollaborationStore, getUserColor } from '@/store/useSocketCollaborationStore';
 import { useCodeEditorStore } from '@/store/useCodeEditorStore';
 import toast from 'react-hot-toast';
 
@@ -12,90 +12,81 @@ interface SocketCollaborationProviderProps {
 
 export const SocketCollaborationProvider = ({ children }: SocketCollaborationProviderProps) => {
   const socket = useSocket();
-  const { 
-    setSocket, 
-    setConnected, 
-    setRoomId, 
-    setUsers, 
-    addMessage, 
+  const {
+    setSocket,
+    setConnected,
+    setRoomId,
+    setUsers,
+    addMessage,
     setMessages,
     setJoining,
-    roomId 
+    setInRoom,
+    setCursor,
+    removeCursor,
+    setRemoteCode,
   } = useSocketCollaborationStore();
-  
-  const { setLanguage, editor } = useCodeEditorStore();
+
+  const { setLanguage } = useCodeEditorStore();
 
   useEffect(() => {
     if (!socket) return;
 
     setSocket(socket);
 
-    // Socket event listeners
-    socket.on('connect', () => {
-      setConnected(true);
-    });
-
+    socket.on('connect', () => setConnected(true));
     socket.on('disconnect', () => {
       setConnected(false);
+      setInRoom(false);
+      setRoomId(null);
     });
 
-    // Room events
-    socket.on('room-state', ({ code, language, messages, users }) => {
-      console.log('Received room state:', { code, language, messages, users });
-      
-      // Update editor with room code
-      if (editor && code) {
-        editor.setValue(code);
-      }
-      
-      // Update language
+    // room-state: sent once when user successfully joins
+    socket.on('room-state', ({ code, language, messages, users, roomId: incomingRoomId }) => {
+      // Use setRemoteCode instead of editor.setValue() to avoid triggering onChange echo
+      if (code) setRemoteCode(code);
       setLanguage(language);
-      
-      // Update messages and users
       setMessages(messages);
       setUsers(users);
       setJoining(false);
-      
-      toast.success('Joined room successfully!');
+      setInRoom(true);
+      if (incomingRoomId) setRoomId(incomingRoomId);
+      toast.success('Joined room successfully!', { id: 'room-join' });
     });
 
     socket.on('user-joined', ({ user, users }) => {
-      console.log('User joined:', user);
       setUsers(users);
-      toast.success(`${user.name} joined the room`);
+      toast(`${user.name} joined the room`, { icon: '👋' });
     });
 
-    socket.on('user-left', ({ userName, users }) => {
-      console.log('User left:', userName);
+    socket.on('user-left', ({ userId, userName, users }) => {
       setUsers(users);
+      removeCursor(userId);
       toast(`${userName} left the room`, { icon: 'ℹ️' });
     });
 
-    // Code synchronization
-    socket.on('code-update', ({ code, userId }) => {
-      console.log('Code update from:', userId);
-      if (editor && userId !== socket.id) {
-        const currentPosition = editor.getPosition();
-        editor.setValue(code);
-        if (currentPosition) {
-          editor.setPosition(currentPosition);
-        }
-      }
+    // code-update: use setRemoteCode so the editor applies it with suppression flag
+    socket.on('code-update', ({ code }) => {
+      setRemoteCode(code);
     });
 
-    // Language synchronization
     socket.on('language-update', ({ language, userId }) => {
-      console.log('Language update to:', language, 'from:', userId);
       if (userId !== socket.id) {
         setLanguage(language);
-        toast(`Language changed to ${language}`, { icon: 'ℹ️' });
+        toast(`Language changed to ${language}`, { icon: '🔤' });
       }
     });
 
-    // Chat messages
-    socket.on('receive-message', (message) => {
-      console.log('Received message:', message);
-      addMessage(message);
+    socket.on('receive-message', (message) => addMessage(message));
+
+    socket.on('cursor-update', ({ position, userId, userName }) => {
+      if (userId !== socket.id) {
+        setCursor(userId, {
+          lineNumber: position.lineNumber,
+          column: position.column,
+          userName,
+          color: getUserColor(userId),
+        });
+      }
     });
 
     return () => {
@@ -107,8 +98,10 @@ export const SocketCollaborationProvider = ({ children }: SocketCollaborationPro
       socket.off('code-update');
       socket.off('language-update');
       socket.off('receive-message');
+      socket.off('cursor-update');
     };
-  }, [socket, editor, setSocket, setConnected, setRoomId, setUsers, addMessage, setMessages, setLanguage, setJoining]);
+  // editor removed from deps — provider no longer touches editor directly
+  }, [socket, setSocket, setConnected, setRoomId, setUsers, addMessage, setMessages, setLanguage, setJoining, setInRoom, setCursor, removeCursor, setRemoteCode]);
 
   return <>{children}</>;
 };
